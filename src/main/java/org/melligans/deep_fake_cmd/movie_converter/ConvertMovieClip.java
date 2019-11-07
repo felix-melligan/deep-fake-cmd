@@ -1,5 +1,6 @@
 package org.melligans.deep_fake_cmd.movie_converter;
 
+import me.tongfei.progressbar.ProgressBar;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -14,10 +15,12 @@ public class ConvertMovieClip {
     private final Java2DFrameConverter converter;
     private final String imgType = "png";
     private final MovieClip source_movie;
+    private ProgressBar progressBar;
 
-    public ConvertMovieClip(final MovieClip sourceMovie, final String destinationDirectory) {
+    public ConvertMovieClip(final MovieClip sourceMovie, final String destinationDirectory, final ProgressBar progressBar) {
         this.destinationDirectory = new File(destinationDirectory+"/src-frames/");
         this.source_movie = sourceMovie;
+        this.progressBar = progressBar;
         converter = new Java2DFrameConverter();
 
         if(!this.destinationDirectory.exists()) {
@@ -33,8 +36,9 @@ public class ConvertMovieClip {
                 frameGrabber.start();
 
                 for (long i = first_frame; i < last_frame; i++) {
+                    progressBar.step();
                     final Frame frame = frameGrabber.grabImage();
-                    final String frameNumber = Double.toString(i);
+                    final String frameNumber = Long.toString(i);
                     final BufferedImage bi = converter.convert(frame);
                     final File img = new File(destinationDirectory + "/frame-" + frameNumber + ".png");
                     ImageIO.write(bi, imgType, img);
